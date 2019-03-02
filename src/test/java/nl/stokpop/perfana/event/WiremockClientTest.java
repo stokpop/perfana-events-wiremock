@@ -22,7 +22,7 @@ public class WiremockClientTest {
             "    \"response\": {\n"+
             "        \"status\": 200,\n"+
             "        \"body\": \"Hello world! from Wiremock, with delay :-)\",\n"+
-            "        \"fixedDelayMilliseconds\": ${bar},\n"+
+            "        \"fixedDelayMilliseconds\": ${delay},\n"+
             "\t\t\"headers\": {\n"+
             "            \"Content-Type\": \"text/plain\"\n"+
             "        }\n"+
@@ -34,7 +34,7 @@ public class WiremockClientTest {
         WiremockClient client = new WiremockClient("http://localhost:8568");
 
         Map<String,String> replacements = new HashMap<>();
-        replacements.put("bar", "2000");
+        replacements.put("delay", "2000");
         client.uploadFileWithReplacements(MESSAGE, replacements);
     }
 }

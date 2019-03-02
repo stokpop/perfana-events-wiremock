@@ -23,7 +23,7 @@ public class WiremockPerfanaEventTest {
     @Test
     public void runningSomeEvents() {
         Map<String,String> props = new HashMap<>();
-        props.put("wiremockFilesDir", new File(".","src/test/resources").getAbsolutePath());
+        props.put("wiremockFilesDir", new File(".","src/test/resources/wiremock-stubs").getAbsolutePath());
         props.put("wiremockUrl", "http://localhost:8568");
 
         EventProperties properties = new EventProperties(props);
@@ -35,8 +35,8 @@ public class WiremockPerfanaEventTest {
         WiremockPerfanaEvent event = new WiremockPerfanaEvent();
         event.beforeTest(context, properties);
         event.keepAlive(context, properties);
-        event.customEvent(context, properties, ScheduleEvent.createFromLine("PT3S|wiremock-change-delay|bar=4000"));
-        event.customEvent(context, properties, ScheduleEvent.createFromLine("PT1M|wiremock-change-delay|bar=8000"));
+        event.customEvent(context, properties, ScheduleEvent.createFromLine("PT3S|wiremock-change-delay|delay=4000"));
+        event.customEvent(context, properties, ScheduleEvent.createFromLine("PT1M|wiremock-change-delay|delay=8000"));
         event.afterTest(context, properties);
 
         // not much to assert really... just look at System.out and

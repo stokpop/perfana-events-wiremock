@@ -57,11 +57,12 @@ public class WiremockPerfanaEvent extends PerfanaEventAdapter {
             throw new WiremockEventException(String.format("property %s is not set", WIREMOCK_URL));
         }
         client = new WiremockClient(wiremockUrl);
-
     }
 
     private void importAllWiremockFiles(WiremockClient client, File[] files, Map<String, String> replacements) {
         Arrays.stream(files)
+                .filter(file -> !file.isDirectory())
+                .filter(file -> !file.canRead())
                 .peek(file -> sayInfo("import " + file))
                 .map(this::readContents)
                 .filter(Objects::nonNull)
@@ -83,15 +84,14 @@ public class WiremockPerfanaEvent extends PerfanaEventAdapter {
         String eventName = scheduleEvent.getName();
         
         if ("wiremock-change-delay".equalsIgnoreCase(eventName)) {
-            increaseDelay(context, properties, scheduleEvent);
+            injectDelayFromSettings(context, properties, scheduleEvent);
         }
         else {
             sayDebug("ignoring unknown event [" + eventName + "]");
         }
     }
 
-
-    private void increaseDelay(TestContext context, EventProperties properties, ScheduleEvent scheduleEvent) {
+    private void injectDelayFromSettings(TestContext context, EventProperties properties, ScheduleEvent scheduleEvent) {
         Map<String, String> replacements = parseSettings(scheduleEvent.getSettings());
         if (rootDir != null) {
             importAllWiremockFiles(client, rootDir.listFiles(), replacements);
@@ -122,6 +122,6 @@ public class WiremockPerfanaEvent extends PerfanaEventAdapter {
     }
 
     private static void sayStatic(String something) {
-        System.out.println(String.format("[INFO] [%s] %s%n", PERFANA_EVENT, something));
+        System.out.println(String.format("[INFO] [%s] %s", PERFANA_EVENT, something));
     }
 }

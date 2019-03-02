@@ -19,6 +19,8 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.function.Function;
 
+import static nl.stokpop.perfana.event.WiremockPerfanaEvent.isDebugEnabled;
+
 class WiremockClient {
 
     private static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
@@ -44,8 +46,10 @@ class WiremockClient {
         return httpClientBuilder.build();
     }
 
-    private void say(String something) {
-        System.out.println(something);
+    private void sayDebug(String something) {
+        if (isDebugEnabled) {
+            System.out.println(something);
+        }
     }
 
     private static String responseToString(HttpResponse response) throws IOException {
@@ -85,7 +89,7 @@ class WiremockClient {
 
             HttpResponse response = executeRequest(httpPost);
             String result = responseToString(response);
-            say(result);
+            sayDebug(result);
         } catch (URISyntaxException | IOException e) {
             throw new WiremockClientException("call to wiremock failed", e);
         }

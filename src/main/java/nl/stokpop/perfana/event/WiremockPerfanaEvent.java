@@ -61,8 +61,9 @@ public class WiremockPerfanaEvent extends PerfanaEventAdapter {
 
     private void importAllWiremockFiles(WiremockClient client, File[] files, Map<String, String> replacements) {
         Arrays.stream(files)
+                .peek(file -> sayInfo("check " + file))
                 .filter(file -> !file.isDirectory())
-                .filter(file -> !file.canRead())
+                .filter(File::canRead)
                 .peek(file -> sayInfo("import " + file))
                 .map(this::readContents)
                 .filter(Objects::nonNull)

@@ -65,7 +65,7 @@ class WiremockClient {
         HttpResponse response = httpClient.execute(request);
         int statusCode = response.getStatusLine().getStatusCode();
         if (statusCode < 200 || statusCode > 299) {
-            throw new RuntimeException(String.format("Unexpected status code: %d for request: %s", statusCode, request));
+            throw new WiremockClientException(String.format("Unexpected status code: %d for request: %s", statusCode, request));
         }
         return response;
     }
@@ -87,7 +87,7 @@ class WiremockClient {
             String result = responseToString(response);
             say(result);
         } catch (URISyntaxException | IOException e) {
-            throw new RuntimeException("call to wiremock failed", e);
+            throw new WiremockClientException("call to wiremock failed", e);
         }
     }
 

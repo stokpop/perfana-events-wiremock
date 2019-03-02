@@ -45,16 +45,16 @@ public class WiremockPerfanaEvent extends PerfanaEventAdapter {
 
         String filesDir = properties.getProperty(WIREMOCK_FILES_DIR);
         if (filesDir == null) {
-            throw new RuntimeException(String.format("property %s is not set", WIREMOCK_FILES_DIR));
+            throw new WiremockEventException(String.format("property %s is not set", WIREMOCK_FILES_DIR));
         }
         rootDir = new File(filesDir);
         if (!rootDir.exists()) {
-            throw new RuntimeException(String.format("directory not found: %s", rootDir));
+            throw new WiremockEventException(String.format("directory not found: %s", rootDir));
         }
 
         String wiremockUrl = properties.getProperty(WIREMOCK_URL);
         if (wiremockUrl == null) {
-            throw new RuntimeException(String.format("property %s is not set", WIREMOCK_URL));
+            throw new WiremockEventException(String.format("property %s is not set", WIREMOCK_URL));
         }
         client = new WiremockClient(wiremockUrl);
 
@@ -108,20 +108,20 @@ public class WiremockPerfanaEvent extends PerfanaEventAdapter {
     }
 
     private void sayInfo(String something) {
-        System.out.println(String.format("INFO [%s] %s", getName(), something));
+        System.out.println(String.format("[INFO] [%s] %s", getName(), something));
     }
 
     private void sayError(String something) {
-        System.out.println(String.format("ERROR [%s] %s", getName(), something));
+        System.out.println(String.format("[ERROR] [%s] %s", getName(), something));
     }
 
     private void sayDebug(String something) {
         if (isDebugEnabled) {
-            System.out.println(String.format("DEBUG [%s] %s", getName(), something));
+            System.out.println(String.format("[DEBUG] [%s] %s", getName(), something));
         }
     }
 
     private static void sayStatic(String something) {
-        System.out.println(String.format("[%s] %s%n", PERFANA_EVENT, something));
+        System.out.println(String.format("[INFO] [%s] %s%n", PERFANA_EVENT, something));
     }
 }

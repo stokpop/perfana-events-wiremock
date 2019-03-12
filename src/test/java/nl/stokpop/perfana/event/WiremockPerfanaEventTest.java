@@ -24,7 +24,7 @@ public class WiremockPerfanaEventTest {
     public void runningSomeEvents() {
         Map<String,String> props = new HashMap<>();
         props.put("wiremockFilesDir", new File(".","src/test/resources/wiremock-stubs").getAbsolutePath());
-        props.put("wiremockUrl", "http://localhost:8568");
+        props.put("wiremockUrl", "http://localhost:8568,http://localhost:8569");
 
         EventProperties properties = new EventProperties(props);
 

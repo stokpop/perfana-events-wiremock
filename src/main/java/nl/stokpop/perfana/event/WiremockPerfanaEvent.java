@@ -9,11 +9,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.collectingAndThen;
 
 public class WiremockPerfanaEvent extends PerfanaEventAdapter {
 
@@ -23,8 +22,8 @@ public class WiremockPerfanaEvent extends PerfanaEventAdapter {
 
     public static boolean isDebugEnabled = false;
 
+    private List<WiremockClient> clients;
     private File rootDir;
-    private WiremockClient client;
 
     static {
         sayStatic("class loaded");
@@ -56,7 +55,9 @@ public class WiremockPerfanaEvent extends PerfanaEventAdapter {
         if (wiremockUrl == null) {
             throw new WiremockEventException(String.format("property %s is not set", WIREMOCK_URL));
         }
-        client = new WiremockClient(wiremockUrl);
+        clients = Arrays.stream(wiremockUrl.split(","))
+                .map(WiremockClient::new)
+                .collect(collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
     }
 
     private void importAllWiremockFiles(WiremockClient client, File[] files, Map<String, String> replacements) {
@@ -94,8 +95,8 @@ public class WiremockPerfanaEvent extends PerfanaEventAdapter {
 
     private void injectDelayFromSettings(TestContext context, EventProperties properties, ScheduleEvent scheduleEvent) {
         Map<String, String> replacements = parseSettings(scheduleEvent.getSettings());
-        if (rootDir != null) {
-            importAllWiremockFiles(client, rootDir.listFiles(), replacements);
+        if (rootDir != null && clients != null) {
+            clients.forEach(client -> importAllWiremockFiles(client, rootDir.listFiles(), replacements));
         }
     }
 

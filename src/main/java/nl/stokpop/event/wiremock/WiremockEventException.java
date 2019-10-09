@@ -1,4 +1,4 @@
-package nl.stokpop.perfana.event;
+package nl.stokpop.event.wiremock;
 
 public class WiremockEventException extends RuntimeException {
     public WiremockEventException(String message) {

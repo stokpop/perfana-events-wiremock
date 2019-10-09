@@ -1,4 +1,4 @@
-package nl.stokpop.perfana.event;
+package nl.stokpop.event.wiremock;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -19,7 +19,7 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.function.Function;
 
-import static nl.stokpop.perfana.event.WiremockPerfanaEvent.isDebugEnabled;
+import static nl.stokpop.event.wiremock.WiremockEvent.isDebugEnabled;
 
 class WiremockClient {
 

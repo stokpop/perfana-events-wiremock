@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>nl.stokpop</groupId>
-    <artifactId>perfana-events-wiremock</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <artifactId>test-events-wiremock</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
-    <name>perfana-events-wiremock</name>
+    <name>test-events-wiremock</name>
     <description>
-        Works with perfana-java-client maven plugins to generate wiremock events during load tests.
+        Works with events * maven plugins to generate wiremock events during load tests.
         For instance to reset wiremock instances or to increase delay times dynamically.
     </description>
 
@@ -24,9 +24,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:stokpop/perfana-events-wiremock.git</connection>
-        <developerConnection>scm:git:git@github.com:stokpop/perfana-events-wiremock.git</developerConnection>
-        <url>https://github.com/stokpop/perfana-events-wiremock</url>
+        <connection>scm:git:git@github.com:stokpop/test-events-wiremock.git</connection>
+        <developerConnection>scm:git:git@github.com:stokpop/test-events-wiremock.git</developerConnection>
+        <url>https://github.com/stokpop/test-events-wiremock</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -64,9 +64,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.perfana</groupId>
-            <artifactId>perfana-java-client</artifactId>
-            <version>1.3.1</version>
+            <groupId>nl.stokpop</groupId>
+            <artifactId>event-scheduler</artifactId>
+            <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

@@ -1,9 +1,9 @@
-package nl.stokpop.perfana.event;
+package nl.stokpop.event.wiremock;
 
-import io.perfana.client.api.TestContext;
-import io.perfana.event.EventProperties;
-import io.perfana.event.PerfanaEventAdapter;
-import io.perfana.event.ScheduleEvent;
+import nl.stokpop.eventscheduler.api.TestContext;
+import nl.stokpop.eventscheduler.event.EventAdapter;
+import nl.stokpop.eventscheduler.event.EventProperties;
+import nl.stokpop.eventscheduler.event.ScheduleEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.collectingAndThen;
 
-public class WiremockPerfanaEvent extends PerfanaEventAdapter {
+public class WiremockEvent extends EventAdapter {
 
-    private final static String PERFANA_EVENT = "WiremockPerfanaEvent";
+    private final static String PERFANA_EVENT = "WiremockEvent";
     private static final String WIREMOCK_FILES_DIR = "wiremockFilesDir";
     private static final String WIREMOCK_URL = "wiremockUrl";
 
@@ -29,7 +29,7 @@ public class WiremockPerfanaEvent extends PerfanaEventAdapter {
         sayStatic("class loaded");
     }
 
-    public WiremockPerfanaEvent() {
+    public WiremockEvent() {
         sayDebug("Default constructor called.");
     }
 

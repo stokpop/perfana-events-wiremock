@@ -1,10 +1,10 @@
-package nl.stokpop.perfana.event;
+package nl.stokpop.event.wiremock;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import io.perfana.client.api.TestContext;
-import io.perfana.client.api.TestContextBuilder;
-import io.perfana.event.EventProperties;
-import io.perfana.event.ScheduleEvent;
+import nl.stokpop.eventscheduler.api.TestContext;
+import nl.stokpop.eventscheduler.api.TestContextBuilder;
+import nl.stokpop.eventscheduler.event.EventProperties;
+import nl.stokpop.eventscheduler.event.ScheduleEvent;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -12,19 +12,19 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.Assert.assertEquals;
 
-public class WiremockPerfanaEventTest {
+public class WiremockEventTest {
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(options().port(8568).httpsPort(8569));
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().dynamicHttpsPort());
 
     @Test
     public void runningSomeEvents() {
         Map<String,String> props = new HashMap<>();
         props.put("wiremockFilesDir", new File(".","src/test/resources/wiremock-stubs").getAbsolutePath());
-        props.put("wiremockUrl", "http://localhost:8568,http://localhost:8569");
+        props.put("wiremockUrl", "http://localhost:" + wireMockRule.port() + ",http://localhost:" + wireMockRule.port());
 
         EventProperties properties = new EventProperties(props);
 
@@ -32,7 +32,7 @@ public class WiremockPerfanaEventTest {
                 .setTestRunId("my-test-run-id")
                 .build();
         
-        WiremockPerfanaEvent event = new WiremockPerfanaEvent();
+        WiremockEvent event = new WiremockEvent();
         event.beforeTest(context, properties);
         event.keepAlive(context, properties);
         event.customEvent(context, properties, ScheduleEvent.createFromLine("PT3S|wiremock-change-delay|delay=4000"));
@@ -46,20 +46,20 @@ public class WiremockPerfanaEventTest {
 
     @Test
     public void parseSettingsZero() {
-        Map<String, String> emptyMap = WiremockPerfanaEvent.parseSettings("");
+        Map<String, String> emptyMap = WiremockEvent.parseSettings("");
         assertEquals(0, emptyMap.size());
     }
 
     @Test
     public void parseSettingsOne() {
-        Map<String, String> settings = WiremockPerfanaEvent.parseSettings("foo=bar");
+        Map<String, String> settings = WiremockEvent.parseSettings("foo=bar");
         assertEquals(1, settings.size());
         assertEquals("bar", settings.get("foo"));
     }
 
     @Test
     public void parseSettingsTwo() {
-        Map<String, String> settings = WiremockPerfanaEvent.parseSettings("foo=bar;name=stokpop");
+        Map<String, String> settings = WiremockEvent.parseSettings("foo=bar;name=stokpop");
         assertEquals(2, settings.size());
         assertEquals("bar", settings.get("foo"));
         assertEquals("stokpop", settings.get("name"));
@@ -67,7 +67,7 @@ public class WiremockPerfanaEventTest {
 
     @Test
     public void parseSettingsNoValue() {
-        Map<String, String> settings = WiremockPerfanaEvent.parseSettings("foo=bar;name");
+        Map<String, String> settings = WiremockEvent.parseSettings("foo=bar;name");
         assertEquals(2,settings.size());
         assertEquals("bar", settings.get("foo"));
         assertEquals("", settings.get("name"));
@@ -75,7 +75,7 @@ public class WiremockPerfanaEventTest {
 
     @Test
     public void parseSettingsNoEntry() {
-        Map<String, String> settings = WiremockPerfanaEvent.parseSettings("foo=bar;");
+        Map<String, String> settings = WiremockEvent.parseSettings("foo=bar;");
         assertEquals(1, settings.size());
         assertEquals("bar", settings.get("foo"));
     }

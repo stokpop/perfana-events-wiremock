@@ -1,4 +1,4 @@
-package nl.stokpop.perfana.event;
+package nl.stokpop.event.wiremock;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Rule;

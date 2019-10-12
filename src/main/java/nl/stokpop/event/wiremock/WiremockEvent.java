@@ -16,7 +16,7 @@ import static java.util.stream.Collectors.collectingAndThen;
 
 public class WiremockEvent extends EventAdapter {
 
-    private final static String PERFANA_EVENT = "WiremockEvent";
+    private final static String EVENT_NAME = "WiremockEvent";
     private static final String WIREMOCK_FILES_DIR = "wiremockFilesDir";
     private static final String WIREMOCK_URL = "wiremockUrl";
 
@@ -35,7 +35,7 @@ public class WiremockEvent extends EventAdapter {
 
     @Override
     public String getName() {
-        return PERFANA_EVENT;
+        return EVENT_NAME;
     }
 
     @Override
@@ -124,6 +124,6 @@ public class WiremockEvent extends EventAdapter {
     }
 
     private static void sayStatic(String something) {
-        System.out.println(String.format("[INFO] [%s] %s", PERFANA_EVENT, something));
+        System.out.println(String.format("[INFO] [%s] %s", EVENT_NAME, something));
     }
 }

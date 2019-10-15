@@ -1,5 +1,5 @@
 .idea
 target
 test-events-wiremock.iml
-
+.gradle/
 

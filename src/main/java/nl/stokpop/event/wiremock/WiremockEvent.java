@@ -15,10 +15,10 @@
  */
 package nl.stokpop.event.wiremock;
 
+import nl.stokpop.eventscheduler.api.CustomEvent;
+import nl.stokpop.eventscheduler.api.EventAdapter;
+import nl.stokpop.eventscheduler.api.EventProperties;
 import nl.stokpop.eventscheduler.api.TestContext;
-import nl.stokpop.eventscheduler.event.EventAdapter;
-import nl.stokpop.eventscheduler.event.EventProperties;
-import nl.stokpop.eventscheduler.event.ScheduleEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,11 +31,15 @@ import static java.util.stream.Collectors.collectingAndThen;
 
 public class WiremockEvent extends EventAdapter {
 
-    private final static String EVENT_NAME = "WiremockEvent";
     private static final String WIREMOCK_FILES_DIR = "wiremockFilesDir";
     private static final String WIREMOCK_URL = "wiremockUrl";
+    private static final String CLASS_NAME = WiremockEvent.class.getName();
 
     public static boolean isDebugEnabled = false;
+
+    private final String eventName;
+    private final EventProperties properties;
+    private final TestContext context;
 
     private List<WiremockClient> clients;
     private File rootDir;
@@ -44,17 +48,19 @@ public class WiremockEvent extends EventAdapter {
         sayStatic("class loaded");
     }
 
-    public WiremockEvent() {
-        sayDebug("Default constructor called.");
+    public WiremockEvent(String eventName, TestContext testContext, EventProperties properties) {
+        this.eventName = eventName;
+        this.context = testContext;
+        this.properties = properties;
     }
 
     @Override
     public String getName() {
-        return EVENT_NAME;
+        return eventName;
     }
 
     @Override
-    public void beforeTest(TestContext context, EventProperties properties) {
+    public void beforeTest() {
         sayInfo("Hello before test [" + context.getTestRunId() + "]");
 
         String filesDir = properties.getProperty(WIREMOCK_FILES_DIR);
@@ -96,19 +102,19 @@ public class WiremockEvent extends EventAdapter {
     }
 
     @Override
-    public void customEvent(TestContext context, EventProperties properties, ScheduleEvent scheduleEvent) {
+    public void customEvent(CustomEvent scheduleEvent) {
 
         String eventName = scheduleEvent.getName();
         
         if ("wiremock-change-delay".equalsIgnoreCase(eventName)) {
-            injectDelayFromSettings(context, properties, scheduleEvent);
+            injectDelayFromSettings(scheduleEvent);
         }
         else {
             sayDebug("ignoring unknown event [" + eventName + "]");
         }
     }
 
-    private void injectDelayFromSettings(TestContext context, EventProperties properties, ScheduleEvent scheduleEvent) {
+    private void injectDelayFromSettings(CustomEvent scheduleEvent) {
         Map<String, String> replacements = parseSettings(scheduleEvent.getSettings());
         if (rootDir != null && clients != null) {
             clients.forEach(client -> importAllWiremockFiles(client, rootDir.listFiles(), replacements));
@@ -139,6 +145,6 @@ public class WiremockEvent extends EventAdapter {
     }
 
     private static void sayStatic(String something) {
-        System.out.println(String.format("[INFO] [%s] %s", EVENT_NAME, something));
+        System.out.println(String.format("[INFO] [%s] %s", CLASS_NAME , something));
     }
 }

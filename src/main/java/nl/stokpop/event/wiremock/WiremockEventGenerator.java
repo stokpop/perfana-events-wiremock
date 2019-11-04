@@ -15,18 +15,26 @@
  */
 package nl.stokpop.event.wiremock;
 
+import nl.stokpop.eventscheduler.api.CustomEvent;
+import nl.stokpop.eventscheduler.api.EventGenerator;
+import nl.stokpop.eventscheduler.api.EventGeneratorProperties;
 import nl.stokpop.eventscheduler.api.TestContext;
-import nl.stokpop.eventscheduler.event.EventGenerator;
-import nl.stokpop.eventscheduler.event.ScheduleEvent;
-import nl.stokpop.eventscheduler.generator.EventGeneratorProperties;
 
 import java.util.Collections;
 import java.util.List;
 
 public class WiremockEventGenerator implements EventGenerator {
 
+    private final TestContext context;
+    private final EventGeneratorProperties properties;
+
+    WiremockEventGenerator(TestContext testContext, EventGeneratorProperties generatorProperties) {
+        this.context = testContext;
+        this.properties = generatorProperties;
+    }
+
     @Override
-    public List<ScheduleEvent> generate(TestContext context, EventGeneratorProperties props) {
+    public List<CustomEvent> generate() {
         System.out.println("WiremockEventGenerator: sorry, not implemented yet.");
         return Collections.emptyList();
     }

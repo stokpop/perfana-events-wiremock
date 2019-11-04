@@ -16,10 +16,10 @@
 package nl.stokpop.event.wiremock;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import nl.stokpop.eventscheduler.api.CustomEvent;
+import nl.stokpop.eventscheduler.api.EventProperties;
 import nl.stokpop.eventscheduler.api.TestContext;
 import nl.stokpop.eventscheduler.api.TestContextBuilder;
-import nl.stokpop.eventscheduler.event.EventProperties;
-import nl.stokpop.eventscheduler.event.ScheduleEvent;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -40,6 +40,7 @@ public class WiremockEventTest {
         Map<String,String> props = new HashMap<>();
         props.put("wiremockFilesDir", new File(".","src/test/resources/wiremock-stubs").getAbsolutePath());
         props.put("wiremockUrl", "http://localhost:" + wireMockRule.port() + ",http://localhost:" + wireMockRule.port());
+        props.put("eventFactory", "is.this.Used");
 
         EventProperties properties = new EventProperties(props);
 
@@ -47,15 +48,14 @@ public class WiremockEventTest {
                 .setTestRunId("my-test-run-id")
                 .build();
         
-        WiremockEvent event = new WiremockEvent();
-        event.beforeTest(context, properties);
-        event.keepAlive(context, properties);
-        event.customEvent(context, properties, ScheduleEvent.createFromLine("PT3S|wiremock-change-delay|delay=4000"));
-        event.customEvent(context, properties, ScheduleEvent.createFromLine("PT1M|wiremock-change-delay|delay=8000"));
-        event.afterTest(context, properties);
+        WiremockEvent event = new WiremockEvent("myWiremockEvent", context, properties);
+        event.beforeTest();
+        event.keepAlive();
+        event.customEvent(CustomEvent.createFromLine("PT3S|wiremock-change-delay|delay=4000"));
+        event.customEvent(CustomEvent.createFromLine("PT1M|wiremock-change-delay|delay=8000"));
+        event.afterTest();
 
-        // not much to assert really... just look at System.out and
-        // check it does not blow with an Exception...
+        // event.check() can be used to check if all went well with the wiremock calls, todo?
 
     }
 

@@ -20,6 +20,7 @@ import nl.stokpop.eventscheduler.api.CustomEvent;
 import nl.stokpop.eventscheduler.api.EventProperties;
 import nl.stokpop.eventscheduler.api.TestContext;
 import nl.stokpop.eventscheduler.api.TestContextBuilder;
+import nl.stokpop.eventscheduler.log.EventLoggerStdOut;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -48,7 +49,7 @@ public class WiremockEventTest {
                 .setTestRunId("my-test-run-id")
                 .build();
         
-        WiremockEvent event = new WiremockEvent("myWiremockEvent", context, properties);
+        WiremockEvent event = new WiremockEvent("myWiremockEvent", context, properties, EventLoggerStdOut.INSTANCE);
         event.beforeTest();
         event.keepAlive();
         event.customEvent(CustomEvent.createFromLine("PT3S|wiremock-change-delay|delay=4000"));

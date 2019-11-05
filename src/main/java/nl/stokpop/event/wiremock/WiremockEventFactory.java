@@ -1,13 +1,10 @@
 package nl.stokpop.event.wiremock;
 
-import nl.stokpop.eventscheduler.api.Event;
-import nl.stokpop.eventscheduler.api.EventFactory;
-import nl.stokpop.eventscheduler.api.EventProperties;
-import nl.stokpop.eventscheduler.api.TestContext;
+import nl.stokpop.eventscheduler.api.*;
 
 public class WiremockEventFactory implements EventFactory {
     @Override
-    public Event create(String eventName, TestContext testContext, EventProperties eventProperties) {
-        return new WiremockEvent(eventName, testContext, eventProperties);
+    public Event create(String eventName, TestContext testContext, EventProperties eventProperties, EventLogger logger) {
+        return new WiremockEvent(eventName, testContext, eventProperties, logger);
     }
 }

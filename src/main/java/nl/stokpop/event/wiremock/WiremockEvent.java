@@ -15,10 +15,7 @@
  */
 package nl.stokpop.event.wiremock;
 
-import nl.stokpop.eventscheduler.api.CustomEvent;
-import nl.stokpop.eventscheduler.api.EventAdapter;
-import nl.stokpop.eventscheduler.api.EventProperties;
-import nl.stokpop.eventscheduler.api.TestContext;
+import nl.stokpop.eventscheduler.api.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,11 +32,7 @@ public class WiremockEvent extends EventAdapter {
     private static final String WIREMOCK_URL = "wiremockUrl";
     private static final String CLASS_NAME = WiremockEvent.class.getName();
 
-    public static boolean isDebugEnabled = false;
-
-    private final String eventName;
-    private final EventProperties properties;
-    private final TestContext context;
+    static boolean isDebugEnabled = false;
 
     private List<WiremockClient> clients;
     private File rootDir;
@@ -48,22 +41,15 @@ public class WiremockEvent extends EventAdapter {
         sayStatic("class loaded");
     }
 
-    public WiremockEvent(String eventName, TestContext testContext, EventProperties properties) {
-        this.eventName = eventName;
-        this.context = testContext;
-        this.properties = properties;
-    }
-
-    @Override
-    public String getName() {
-        return eventName;
+    public WiremockEvent(String eventName, TestContext testContext, EventProperties eventProperties, EventLogger logger) {
+        super(eventName, testContext, eventProperties, logger);
     }
 
     @Override
     public void beforeTest() {
-        sayInfo("Hello before test [" + context.getTestRunId() + "]");
+        logger.info("Hello before test [" + testContext.getTestRunId() + "]");
 
-        String filesDir = properties.getProperty(WIREMOCK_FILES_DIR);
+        String filesDir = eventProperties.getProperty(WIREMOCK_FILES_DIR);
         if (filesDir == null) {
             throw new WiremockEventException(String.format("property %s is not set", WIREMOCK_FILES_DIR));
         }
@@ -72,7 +58,7 @@ public class WiremockEvent extends EventAdapter {
             throw new WiremockEventException(String.format("directory not found: %s", rootDir));
         }
 
-        String wiremockUrl = properties.getProperty(WIREMOCK_URL);
+        String wiremockUrl = eventProperties.getProperty(WIREMOCK_URL);
         if (wiremockUrl == null) {
             throw new WiremockEventException(String.format("property %s is not set", WIREMOCK_URL));
         }
@@ -83,10 +69,10 @@ public class WiremockEvent extends EventAdapter {
 
     private void importAllWiremockFiles(WiremockClient client, File[] files, Map<String, String> replacements) {
         Arrays.stream(files)
-                .peek(file -> sayInfo("check " + file))
+                .peek(file -> logger.info("check " + file))
                 .filter(file -> !file.isDirectory())
                 .filter(File::canRead)
-                .peek(file -> sayInfo("import " + file))
+                .peek(file -> logger.info("import " + file))
                 .map(this::readContents)
                 .filter(Objects::nonNull)
                 .forEach(fileContents -> client.uploadFileWithReplacements(fileContents, replacements));
@@ -96,7 +82,7 @@ public class WiremockEvent extends EventAdapter {
         try {
             return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            sayError("reading file: " + file);
+            logger.error("reading file: " + file);
             return null;
         }
     }
@@ -110,7 +96,7 @@ public class WiremockEvent extends EventAdapter {
             injectDelayFromSettings(scheduleEvent);
         }
         else {
-            sayDebug("ignoring unknown event [" + eventName + "]");
+            logger.debug("ignoring unknown event [" + eventName + "]");
         }
     }
 
@@ -128,20 +114,6 @@ public class WiremockEvent extends EventAdapter {
         return Arrays.stream(eventSettings.split(";"))
                 .map(s -> s.split("="))
                 .collect(Collectors.toMap(k -> k[0], v -> v.length == 2 ? v[1] : ""));
-    }
-
-    private void sayInfo(String something) {
-        System.out.println(String.format("[INFO] [%s] %s", getName(), something));
-    }
-
-    private void sayError(String something) {
-        System.out.println(String.format("[ERROR] [%s] %s", getName(), something));
-    }
-
-    private void sayDebug(String something) {
-        if (isDebugEnabled) {
-            System.out.println(String.format("[DEBUG] [%s] %s", getName(), something));
-        }
     }
 
     private static void sayStatic(String something) {

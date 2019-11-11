@@ -1,13 +1,14 @@
+import org.gradle.api.plugins.internal.DefaultJavaPluginExtension
 import org.gradle.internal.os.OperatingSystem
 
 plugins {
     id 'java'
     id 'java-library'
-    id 'de.marcphilipp.nexus-publish' version '0.3.0'
+    id 'de.marcphilipp.nexus-publish' version '0.4.0'
     id 'maven-publish'
     id 'signing'
     // check dependency updates: ./gradlew dependencyUpdates -Drevision=release
-    id 'com.github.ben-manes.versions' version '0.25.0'
+    id 'com.github.ben-manes.versions' version '0.27.0'
     id 'com.github.hierynomus.license' version '0.15.0'
     id 'io.codearte.nexus-staging' version '0.21.1'
 }
@@ -16,18 +17,21 @@ repositories {
     mavenLocal()
     mavenCentral()
     jcenter()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
 }
 
 dependencies {
-    compile 'nl.stokpop:event-scheduler:2.0.0-SNAPSHOT'
-    compile 'org.apache.httpcomponents:httpclient:4.5.6'
-    compile 'org.apache.httpcomponents:httpmime:4.5.6'
-    testCompile 'junit:junit:4.11'
-    testCompile 'com.github.tomakehurst:wiremock:2.21.0'
+    implementation 'nl.stokpop:event-scheduler:2.0.0'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.10'
+    implementation 'org.apache.httpcomponents:httpmime:4.5.10'
+    testImplementation 'junit:junit:4.13-rc-1'
+    testImplementation 'com.github.tomakehurst:wiremock:2.25.1'
 }
 
 group = 'nl.stokpop'
-version = '1.0.0-SNAPSHOT'
+version = '1.1.0'
 description = 'test-events-wiremock'
 sourceCompatibility = '1.8'
 
@@ -50,10 +54,8 @@ license {
     ext.year = Calendar.getInstance().get(Calendar.YEAR)
     ext.name = 'Peter Paul Bakker, Stokpop Software Solutions'
     exclude "**/*.txt"
-    mapping {
-        // the standard java style makes intellij complain about dangling javadoc
-        java = "SLASHSTAR_STYLE"
-    }
+    // the standard java style makes intellij complain about dangling javadoc
+    mapping('java', 'SLASHSTAR_STYLE')
 }
 
 nexusPublishing {
@@ -83,12 +85,12 @@ if (project.hasProperty('release')) {
     subprojects {
 
         task javadocJar(type: Jar) {
-            archiveClassifier = 'javadoc'
+            archiveClassifier.set('javadoc')
             from javadoc
         }
 
         task sourcesJar(type: Jar) {
-            archiveClassifier = 'sources'
+            archiveClassifier.set('sources')
             from sourceSets.main.allSource
         }
 
@@ -112,12 +114,18 @@ if (project.hasProperty('release')) {
                     // POM signature
                     beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
                     // Target repository
-                    
-                    repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    String repositoryUrl
+                    if (version.endsWith("SNAPSHOT")) {
+                        repositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+                    }
+                    else {
+                        repositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                    }
+                    repository(url: repositoryUrl) {
                         authentication(userName: ossrhUser, password: ossrhPassword)
                     }
                     pom.project {
-                        name project.name
+                        name project.getName()
                         description project.description
                         packaging 'jar'
                         url 'https://github.com/stokpop/test-events-wiremock.git'

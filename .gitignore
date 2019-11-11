@@ -2,4 +2,4 @@
 target
 test-events-wiremock.iml
 .gradle/
-
+build/

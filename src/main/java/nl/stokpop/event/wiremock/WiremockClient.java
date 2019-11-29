@@ -15,6 +15,7 @@
  */
 package nl.stokpop.event.wiremock;
 
+import nl.stokpop.eventscheduler.api.EventLogger;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -31,21 +32,22 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.function.Function;
 
-import static nl.stokpop.event.wiremock.WiremockEvent.isDebugEnabled;
-
 class WiremockClient {
 
-    private static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
+    private static final Charset CHARSET_UTF8 = StandardCharsets.UTF_8;
 
     private final HttpClient httpClient;
     private final String baseUrl;
+    private final EventLogger logger;
 
-    WiremockClient(String url) {
-        httpClient = createHttpClient(false);
-        baseUrl = url;
+    WiremockClient(String url, EventLogger logger) {
+        this.httpClient = createHttpClient(false);
+        this.baseUrl = url;
+        this.logger = logger;
     }
 
     private HttpClient createHttpClient(boolean useProxy) {
@@ -59,12 +61,6 @@ class WiremockClient {
         }
 
         return httpClientBuilder.build();
-    }
-
-    private void sayDebug(String something) {
-        if (isDebugEnabled) {
-            System.out.println(something);
-        }
     }
 
     private static String responseToString(HttpResponse response) throws IOException {
@@ -104,7 +100,7 @@ class WiremockClient {
 
             HttpResponse response = executeRequest(httpPost);
             String result = responseToString(response);
-            sayDebug(result);
+            logger.debug(result);
         } catch (URISyntaxException | IOException e) {
             throw new WiremockClientException("call to wiremock failed", e);
         }

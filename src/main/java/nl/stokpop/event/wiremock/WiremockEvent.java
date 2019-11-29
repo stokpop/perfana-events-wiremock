@@ -15,55 +15,63 @@
  */
 package nl.stokpop.event.wiremock;
 
-import nl.stokpop.eventscheduler.api.*;
+import nl.stokpop.eventscheduler.api.CustomEvent;
+import nl.stokpop.eventscheduler.api.EventAdapter;
+import nl.stokpop.eventscheduler.api.EventLogger;
+import nl.stokpop.eventscheduler.api.EventProperties;
+import nl.stokpop.eventscheduler.api.TestContext;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.collectingAndThen;
 
 public class WiremockEvent extends EventAdapter {
 
-    private static final String WIREMOCK_FILES_DIR = "wiremockFilesDir";
-    private static final String WIREMOCK_URL = "wiremockUrl";
-    private static final String CLASS_NAME = WiremockEvent.class.getName();
+    public static final String PROP_WIREMOCK_FILES_DIR = "wiremockFilesDir";
+    private static final String PROP_WIREMOCK_URL = "wiremockUrl";
 
-    static boolean isDebugEnabled = false;
+    private static final String EVENT_WIREMOCK_CHANGE_DELAY = "wiremock-change-delay";
+
+    private static final Set<String> ALLOWED_PROPERTIES = setOf(PROP_WIREMOCK_FILES_DIR, PROP_WIREMOCK_URL);
+    private static final Set<String> ALLOWED_CUSTOM_EVENTS = setOf(EVENT_WIREMOCK_CHANGE_DELAY);
 
     private List<WiremockClient> clients;
     private File rootDir;
-
-    static {
-        sayStatic("class loaded");
-    }
-
+    
     public WiremockEvent(String eventName, TestContext testContext, EventProperties eventProperties, EventLogger logger) {
         super(eventName, testContext, eventProperties, logger);
     }
 
     @Override
     public void beforeTest() {
-        logger.info("Hello before test [" + testContext.getTestRunId() + "]");
+        logger.info("before test [" + testContext.getTestRunId() + "]");
 
-        String filesDir = eventProperties.getProperty(WIREMOCK_FILES_DIR);
+        String filesDir = eventProperties.getProperty(PROP_WIREMOCK_FILES_DIR);
         if (filesDir == null) {
-            throw new WiremockEventException(String.format("property %s is not set", WIREMOCK_FILES_DIR));
+            throw new WiremockEventException(String.format("property %s is not set", PROP_WIREMOCK_FILES_DIR));
         }
         rootDir = new File(filesDir);
         if (!rootDir.exists()) {
             throw new WiremockEventException(String.format("directory not found: %s", rootDir));
         }
 
-        String wiremockUrl = eventProperties.getProperty(WIREMOCK_URL);
+        String wiremockUrl = eventProperties.getProperty(PROP_WIREMOCK_URL);
         if (wiremockUrl == null) {
-            throw new WiremockEventException(String.format("property %s is not set", WIREMOCK_URL));
+            throw new WiremockEventException(String.format("property %s is not set", PROP_WIREMOCK_URL));
         }
         clients = Arrays.stream(wiremockUrl.split(","))
-                .map(WiremockClient::new)
+                .map(url -> new WiremockClient(url, logger))
                 .collect(collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
     }
 
@@ -92,7 +100,7 @@ public class WiremockEvent extends EventAdapter {
 
         String eventName = scheduleEvent.getName();
         
-        if ("wiremock-change-delay".equalsIgnoreCase(eventName)) {
+        if (EVENT_WIREMOCK_CHANGE_DELAY.equalsIgnoreCase(eventName)) {
             injectDelayFromSettings(scheduleEvent);
         }
         else {
@@ -116,7 +124,13 @@ public class WiremockEvent extends EventAdapter {
                 .collect(Collectors.toMap(k -> k[0], v -> v.length == 2 ? v[1] : ""));
     }
 
-    private static void sayStatic(String something) {
-        System.out.println(String.format("[INFO] [%s] %s", CLASS_NAME , something));
+    @Override
+    public Collection<String> allowedProperties() {
+        return ALLOWED_PROPERTIES;
+    }
+
+    @Override
+    public Collection<String> allowedCustomEvents() {
+        return ALLOWED_CUSTOM_EVENTS;
     }
 }

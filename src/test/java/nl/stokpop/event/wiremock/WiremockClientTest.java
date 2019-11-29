@@ -16,6 +16,7 @@
 package nl.stokpop.event.wiremock;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import nl.stokpop.eventscheduler.log.EventLoggerStdOut;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -46,7 +47,7 @@ public class WiremockClientTest {
 
     @Test
     public void uploadFileWithReplacements() {
-        WiremockClient client = new WiremockClient("http://localhost:8568");
+        WiremockClient client = new WiremockClient("http://localhost:8568", EventLoggerStdOut.INSTANCE_DEBUG, false);
 
         Map<String,String> replacements = new HashMap<>();
         replacements.put("delay", "2000");

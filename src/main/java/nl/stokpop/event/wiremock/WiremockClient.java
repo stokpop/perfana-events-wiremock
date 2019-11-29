@@ -44,8 +44,8 @@ class WiremockClient {
     private final String baseUrl;
     private final EventLogger logger;
 
-    WiremockClient(String url, EventLogger logger) {
-        this.httpClient = createHttpClient(false);
+    WiremockClient(String url, EventLogger logger, boolean useProxy) {
+        this.httpClient = createHttpClient(useProxy);
         this.baseUrl = url;
         this.logger = logger;
     }

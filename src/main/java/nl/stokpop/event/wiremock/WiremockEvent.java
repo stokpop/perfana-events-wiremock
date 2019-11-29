@@ -39,11 +39,12 @@ import static java.util.stream.Collectors.collectingAndThen;
 public class WiremockEvent extends EventAdapter {
 
     public static final String PROP_WIREMOCK_FILES_DIR = "wiremockFilesDir";
-    private static final String PROP_WIREMOCK_URL = "wiremockUrl";
+    public static final String PROP_WIREMOCK_URL = "wiremockUrl";
+    public static final String PROP_USE_PROXY = "useProxy";
 
-    private static final String EVENT_WIREMOCK_CHANGE_DELAY = "wiremock-change-delay";
+    public static final String EVENT_WIREMOCK_CHANGE_DELAY = "wiremock-change-delay";
 
-    private static final Set<String> ALLOWED_PROPERTIES = setOf(PROP_WIREMOCK_FILES_DIR, PROP_WIREMOCK_URL);
+    private static final Set<String> ALLOWED_PROPERTIES = setOf(PROP_WIREMOCK_FILES_DIR, PROP_WIREMOCK_URL, PROP_USE_PROXY);
     private static final Set<String> ALLOWED_CUSTOM_EVENTS = setOf(EVENT_WIREMOCK_CHANGE_DELAY);
 
     private List<WiremockClient> clients;
@@ -67,11 +68,13 @@ public class WiremockEvent extends EventAdapter {
         }
 
         String wiremockUrl = eventProperties.getProperty(PROP_WIREMOCK_URL);
+        boolean useProxy = Boolean.parseBoolean(eventProperties.getPropertyOrDefault(PROP_USE_PROXY, "false"));
+
         if (wiremockUrl == null) {
             throw new WiremockEventException(String.format("property %s is not set", PROP_WIREMOCK_URL));
         }
         clients = Arrays.stream(wiremockUrl.split(","))
-                .map(url -> new WiremockClient(url, logger))
+                .map(url -> new WiremockClient(url, logger, useProxy))
                 .collect(collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
     }
 

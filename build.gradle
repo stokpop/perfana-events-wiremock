@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'nl.stokpop:event-scheduler:2.1.0'
+    implementation 'nl.stokpop:event-scheduler:2.2.1'
     implementation 'org.apache.httpcomponents:httpclient:4.5.10'
     implementation 'org.apache.httpcomponents:httpmime:4.5.10'
     testImplementation 'junit:junit:4.13-rc-1'

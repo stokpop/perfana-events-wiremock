@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'nl.stokpop:event-scheduler:2.2.2'
+    implementation 'nl.stokpop:event-scheduler:3.0.0-M1-SNAPSHOT'
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     implementation 'org.apache.httpcomponents:httpmime:4.5.13'
     testImplementation 'junit:junit:4.13.1'
@@ -30,7 +30,7 @@ dependencies {
 }
 
 group = 'nl.stokpop'
-version = '1.1.2'
+version = '1.2.0-SNAPSHOT'
 description = 'test-events-wiremock'
 sourceCompatibility = '1.8'
 
@@ -52,9 +52,10 @@ license {
     header = file("src/main/resources/META-INF/LICENSE.txt")
     ext.year = Calendar.getInstance().get(Calendar.YEAR)
     ext.name = 'Peter Paul Bakker, Stokpop Software Solutions'
-    exclude "**/*.txt"
+    excludes(["**/*.txt", "src/main/resources/META-INF/services/**", "**/*.json"])
     // the standard java style makes intellij complain about dangling javadoc
     mapping('java', 'SLASHSTAR_STYLE')
+    skipExistingHeaders = true
 }
 
 nexusPublishing {

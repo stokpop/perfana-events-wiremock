@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Peter Paul Bakker, Stokpop Software Solutions
+ * Copyright (C) 2021 Peter Paul Bakker, Stokpop Software Solutions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,17 @@
  */
 package nl.stokpop.event.wiremock;
 
-import nl.stokpop.eventscheduler.api.*;
+import nl.stokpop.eventscheduler.api.CustomEvent;
+import nl.stokpop.eventscheduler.api.EventGenerator;
+import nl.stokpop.eventscheduler.api.EventGeneratorProperties;
+import nl.stokpop.eventscheduler.api.EventLogger;
 
 import java.util.Collections;
 import java.util.List;
 
 public class WiremockEventGenerator implements EventGenerator {
 
-    WiremockEventGenerator(TestContext testContext, EventGeneratorProperties generatorProperties, EventLogger logger) {
+    WiremockEventGenerator(EventGeneratorProperties generatorProperties, EventLogger logger) {
     }
 
     @Override

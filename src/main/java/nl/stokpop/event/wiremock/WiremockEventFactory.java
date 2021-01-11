@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Peter Paul Bakker, Stokpop Software Solutions
+ * Copyright (C) 2021 Peter Paul Bakker, Stokpop Software Solutions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,10 @@ package nl.stokpop.event.wiremock;
 import nl.stokpop.eventscheduler.api.Event;
 import nl.stokpop.eventscheduler.api.EventFactory;
 import nl.stokpop.eventscheduler.api.EventLogger;
-import nl.stokpop.eventscheduler.api.EventProperties;
-import nl.stokpop.eventscheduler.api.TestContext;
 
-public class WiremockEventFactory implements EventFactory {
+public class WiremockEventFactory implements EventFactory<WiremockEventConfig> {
     @Override
-    public Event create(String eventName, TestContext testContext, EventProperties eventProperties, EventLogger logger) {
-        return new WiremockEvent(eventName, testContext, eventProperties, logger);
+    public Event create(WiremockEventConfig eventConfig, EventLogger logger) {
+        return new WiremockEvent(eventConfig, logger);
     }
 }

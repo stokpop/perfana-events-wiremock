@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Peter Paul Bakker, Stokpop Software Solutions
+ * Copyright (C) 2021 Peter Paul Bakker, Stokpop Software Solutions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,11 @@ import nl.stokpop.eventscheduler.api.EventGenerator;
 import nl.stokpop.eventscheduler.api.EventGeneratorFactory;
 import nl.stokpop.eventscheduler.api.EventGeneratorProperties;
 import nl.stokpop.eventscheduler.api.EventLogger;
-import nl.stokpop.eventscheduler.api.TestContext;
 
 public class WiremockEventGeneratorFactory implements EventGeneratorFactory {
 
     @Override
-    public EventGenerator create(TestContext testContext, EventGeneratorProperties eventGeneratorProperties, EventLogger logger) {
-        return new WiremockEventGenerator(testContext, eventGeneratorProperties, logger);
+    public EventGenerator create(EventGeneratorProperties eventGeneratorProperties, EventLogger logger) {
+        return new WiremockEventGenerator(eventGeneratorProperties, logger);
     }
 }

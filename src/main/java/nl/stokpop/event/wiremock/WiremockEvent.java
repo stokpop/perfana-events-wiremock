@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Peter Paul Bakker, Stokpop Software Solutions
+ * Copyright (C) 2021 Peter Paul Bakker, Stokpop Software Solutions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,60 +18,47 @@ package nl.stokpop.event.wiremock;
 import nl.stokpop.eventscheduler.api.CustomEvent;
 import nl.stokpop.eventscheduler.api.EventAdapter;
 import nl.stokpop.eventscheduler.api.EventLogger;
-import nl.stokpop.eventscheduler.api.EventProperties;
-import nl.stokpop.eventscheduler.api.TestContext;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.collectingAndThen;
 
-public class WiremockEvent extends EventAdapter {
-
-    public static final String PROP_WIREMOCK_FILES_DIR = "wiremockFilesDir";
-    public static final String PROP_WIREMOCK_URL = "wiremockUrl";
-    public static final String PROP_USE_PROXY = "useProxy";
+public class WiremockEvent extends EventAdapter<WiremockEventConfig> {
 
     public static final String EVENT_WIREMOCK_CHANGE_DELAY = "wiremock-change-delay";
 
-    private static final Set<String> ALLOWED_PROPERTIES = setOf(PROP_WIREMOCK_FILES_DIR, PROP_WIREMOCK_URL, PROP_USE_PROXY);
     private static final Set<String> ALLOWED_CUSTOM_EVENTS = setOf(EVENT_WIREMOCK_CHANGE_DELAY);
 
     private List<WiremockClient> clients;
     private File rootDir;
     
-    public WiremockEvent(String eventName, TestContext testContext, EventProperties eventProperties, EventLogger logger) {
-        super(eventName, testContext, eventProperties, logger);
+    public WiremockEvent(WiremockEventConfig eventConfig, EventLogger logger) {
+        super(eventConfig, logger);
     }
 
     @Override
     public void beforeTest() {
-        logger.info("before test [" + testContext.getTestRunId() + "]");
+        logger.info("before test [" + eventConfig.getTestConfig().getTestRunId() + "]");
 
-        String filesDir = eventProperties.getProperty(PROP_WIREMOCK_FILES_DIR);
+        String filesDir = eventConfig.getWiremockFilesDir();
         if (filesDir == null) {
-            throw new WiremockEventException(String.format("property %s is not set", PROP_WIREMOCK_FILES_DIR));
+            throw new WiremockEventException("wiremock files dir is not set");
         }
         rootDir = new File(filesDir);
         if (!rootDir.exists()) {
             throw new WiremockEventException(String.format("directory not found: %s", rootDir));
         }
 
-        String wiremockUrl = eventProperties.getProperty(PROP_WIREMOCK_URL);
-        boolean useProxy = Boolean.parseBoolean(eventProperties.getPropertyOrDefault(PROP_USE_PROXY, "false"));
+        String wiremockUrl = eventConfig.getWiremockUrl();
+        boolean useProxy = eventConfig.isUseProxy();
 
         if (wiremockUrl == null) {
-            throw new WiremockEventException(String.format("property %s is not set", PROP_WIREMOCK_URL));
+            throw new WiremockEventException("wiremock url is not set");
         }
         clients = Arrays.stream(wiremockUrl.split(","))
                 .map(url -> new WiremockClient(url, logger, useProxy))
@@ -125,11 +112,6 @@ public class WiremockEvent extends EventAdapter {
         return Arrays.stream(eventSettings.split(";"))
                 .map(s -> s.split("="))
                 .collect(Collectors.toMap(k -> k[0], v -> v.length == 2 ? v[1] : ""));
-    }
-
-    @Override
-    public Collection<String> allowedProperties() {
-        return ALLOWED_PROPERTIES;
     }
 
     @Override

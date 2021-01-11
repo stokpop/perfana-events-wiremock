@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Peter Paul Bakker, Stokpop Software Solutions
+ * Copyright (C) 2021 Peter Paul Bakker, Stokpop Software Solutions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,12 @@ package nl.stokpop.event.wiremock;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import nl.stokpop.eventscheduler.api.CustomEvent;
-import nl.stokpop.eventscheduler.api.EventProperties;
-import nl.stokpop.eventscheduler.api.TestContext;
-import nl.stokpop.eventscheduler.api.TestContextBuilder;
+import nl.stokpop.eventscheduler.api.config.TestConfig;
 import nl.stokpop.eventscheduler.log.EventLoggerStdOut;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -38,18 +35,14 @@ public class WiremockEventTest {
 
     @Test
     public void runningSomeEvents() {
-        Map<String,String> props = new HashMap<>();
-        props.put("wiremockFilesDir", new File(".","src/test/resources/wiremock-stubs").getAbsolutePath());
-        props.put("wiremockUrl", "http://localhost:" + wireMockRule.port() + ",http://localhost:" + wireMockRule.port());
-        props.put("eventFactory", "is.this.Used");
 
-        EventProperties properties = new EventProperties(props);
+        WiremockEventConfig eventConfig = new WiremockEventConfig();
+        eventConfig.setName("myWiremockEvent");
+        eventConfig.setWiremockFilesDir(new File(".","src/test/resources/wiremock-stubs").getAbsolutePath());
+        eventConfig.setWiremockUrl("http://localhost:" + wireMockRule.port() + ",http://localhost:" + wireMockRule.port());
+        eventConfig.setTestConfig(TestConfig.builder().testRunId("my-test-run-id").build());
 
-        TestContext context = new TestContextBuilder()
-                .setTestRunId("my-test-run-id")
-                .build();
-        
-        WiremockEvent event = new WiremockEvent("myWiremockEvent", context, properties, EventLoggerStdOut.INSTANCE);
+        WiremockEvent event = new WiremockEvent(eventConfig, EventLoggerStdOut.INSTANCE);
         event.beforeTest();
         event.keepAlive();
         event.customEvent(CustomEvent.createFromLine("PT3S|wiremock-change-delay|delay=4000"));

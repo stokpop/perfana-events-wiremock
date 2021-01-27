@@ -16,8 +16,10 @@
 package nl.stokpop.event.wiremock;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import nl.stokpop.eventscheduler.EventMessageBusSimple;
 import nl.stokpop.eventscheduler.api.CustomEvent;
 import nl.stokpop.eventscheduler.api.config.TestConfig;
+import nl.stokpop.eventscheduler.api.message.EventMessageBus;
 import nl.stokpop.eventscheduler.log.EventLoggerStdOut;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,7 +44,9 @@ public class WiremockEventTest {
         eventConfig.setWiremockUrl("http://localhost:" + wireMockRule.port() + ",http://localhost:" + wireMockRule.port());
         eventConfig.setTestConfig(TestConfig.builder().testRunId("my-test-run-id").build());
 
-        WiremockEvent event = new WiremockEvent(eventConfig, EventLoggerStdOut.INSTANCE);
+        EventMessageBus messageBus = new EventMessageBusSimple();
+
+        WiremockEvent event = new WiremockEvent(eventConfig.toContext(), messageBus, EventLoggerStdOut.INSTANCE);
         event.beforeTest();
         event.keepAlive();
         event.customEvent(CustomEvent.createFromLine("PT3S|wiremock-change-delay|delay=4000"));

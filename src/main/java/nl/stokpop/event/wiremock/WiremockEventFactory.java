@@ -18,10 +18,11 @@ package nl.stokpop.event.wiremock;
 import nl.stokpop.eventscheduler.api.Event;
 import nl.stokpop.eventscheduler.api.EventFactory;
 import nl.stokpop.eventscheduler.api.EventLogger;
+import nl.stokpop.eventscheduler.api.message.EventMessageBus;
 
-public class WiremockEventFactory implements EventFactory<WiremockEventConfig> {
+public class WiremockEventFactory implements EventFactory<WiremockEventContext> {
     @Override
-    public Event create(WiremockEventConfig eventConfig, EventLogger logger) {
-        return new WiremockEvent(eventConfig, logger);
+    public Event create(WiremockEventContext context, EventMessageBus messageBus, EventLogger logger) {
+        return new WiremockEvent(context, messageBus, logger);
     }
 }

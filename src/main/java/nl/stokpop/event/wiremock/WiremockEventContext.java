@@ -15,35 +15,32 @@
  */
 package nl.stokpop.event.wiremock;
 
-import nl.stokpop.eventscheduler.api.config.EventConfig;
-import nl.stokpop.eventscheduler.api.config.TestContext;
+import nl.stokpop.eventscheduler.api.config.EventContext;
 
-public class WiremockEventConfig extends EventConfig {
-    private String wiremockFilesDir;
-    private String wiremockUrl;
-    private boolean useProxy = false;
+public class WiremockEventContext extends EventContext {
+    private final String wiremockFilesDir;
+    private final String wiremockUrl;
+    private final boolean useProxy;
 
-    public void setWiremockFilesDir(String wiremockFilesDir) {
+    protected WiremockEventContext(EventContext context, String wiremockFilesDir, String wiremockUrl, boolean useProxy) {
+        super(context, WiremockEventFactory.class.getName(), false);
         this.wiremockFilesDir = wiremockFilesDir;
-    }
-
-    public void setWiremockUrl(String wiremockUrl) {
         this.wiremockUrl = wiremockUrl;
-    }
-
-    public void setUseProxy(boolean useProxy) {
         this.useProxy = useProxy;
     }
 
-    @Override
-    public WiremockEventContext toContext() {
-        return new WiremockEventContext(super.toContext(), wiremockFilesDir, wiremockUrl, useProxy);
+    public String getWiremockFilesDir() {
+        return wiremockFilesDir;
     }
 
-    @Override
-    public WiremockEventContext toContext(TestContext override) {
-        return new WiremockEventContext(super.toContext(override), wiremockFilesDir, wiremockUrl, useProxy);
+    public String getWiremockUrl() {
+        return wiremockUrl;
     }
+
+    public boolean isUseProxy() {
+        return useProxy;
+    }
+
     @Override
     public String toString() {
         return "WiremockEventConfig{" +

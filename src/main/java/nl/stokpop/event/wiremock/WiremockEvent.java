@@ -18,6 +18,7 @@ package nl.stokpop.event.wiremock;
 import nl.stokpop.eventscheduler.api.CustomEvent;
 import nl.stokpop.eventscheduler.api.EventAdapter;
 import nl.stokpop.eventscheduler.api.EventLogger;
+import nl.stokpop.eventscheduler.api.message.EventMessageBus;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.collectingAndThen;
 
-public class WiremockEvent extends EventAdapter<WiremockEventConfig> {
+public class WiremockEvent extends EventAdapter<WiremockEventContext> {
 
     public static final String EVENT_WIREMOCK_CHANGE_DELAY = "wiremock-change-delay";
 
@@ -37,15 +38,15 @@ public class WiremockEvent extends EventAdapter<WiremockEventConfig> {
     private List<WiremockClient> clients;
     private File rootDir;
     
-    public WiremockEvent(WiremockEventConfig eventConfig, EventLogger logger) {
-        super(eventConfig, logger);
+    public WiremockEvent(WiremockEventContext eventConfig, EventMessageBus messageBus, EventLogger logger) {
+        super(eventConfig, messageBus, logger);
     }
 
     @Override
     public void beforeTest() {
-        logger.info("before test [" + eventConfig.getTestConfig().getTestRunId() + "]");
+        logger.info("before test [" + eventContext.getTestContext().getTestRunId() + "]");
 
-        String filesDir = eventConfig.getWiremockFilesDir();
+        String filesDir = eventContext.getWiremockFilesDir();
         if (filesDir == null) {
             throw new WiremockEventException("wiremock files dir is not set");
         }
@@ -54,8 +55,8 @@ public class WiremockEvent extends EventAdapter<WiremockEventConfig> {
             throw new WiremockEventException(String.format("directory not found: %s", rootDir));
         }
 
-        String wiremockUrl = eventConfig.getWiremockUrl();
-        boolean useProxy = eventConfig.isUseProxy();
+        String wiremockUrl = eventContext.getWiremockUrl();
+        boolean useProxy = eventContext.isUseProxy();
 
         if (wiremockUrl == null) {
             throw new WiremockEventException("wiremock url is not set");
